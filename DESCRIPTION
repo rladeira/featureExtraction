@@ -2,7 +2,7 @@ Package: featureExtraction
 Title: Feature Extraction
 Version: 0.0.0.9000
 Authors@R: person("Rafael", "Ladeira", email = "rwladeira@gmail.com", role = c("aut", "cre"))
-Description: An R package containing feature extraction techniques.
+Description: An R package containing some functions for feature extraction.
 Depends: R (>= 3.2.4)
 License: MIT
 LazyData: true
