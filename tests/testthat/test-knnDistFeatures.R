@@ -11,7 +11,7 @@ test_that("knnDistFeatures doesn't return NULL", {
   
   train <- sample(n, n/2)
   
-  knnDist <- knnDistFeatures(X[train,], y[train], verbose = FALSE)
+  knnDist <- knnDistFeatures(X[train,], y[train])
   expect_false(is.null(knnDist))
   
   features <- predict(knnDist, X[-train,])
@@ -30,8 +30,7 @@ test_that("knnDistFeatures returns correct number of features", {
   nClasses <- nlevels(y)
   k <- sample(2:10, 1)
   
-  knnDist <- knnDistFeatures(X[train,], y[train], k = k, verbose = FALSE)
-  expect_true(ncol(knnDist$xKnnFeatures) == (k * nClasses))
+  knnDist <- knnDistFeatures(X[train,], y[train], k)
   
   features <- predict(knnDist, X[-train,])
   expect_true(ncol(features) == (k * nClasses))
@@ -49,13 +48,7 @@ test_that("knnDistFeatures returns correct values", {
   
   euclidDistance <- function(x1, x2) sqrt(sum((x1 - x2)^2))
   
-  knnDist <- knnDistFeatures(X[train,], y[train], k = 2, verbose = FALSE)
-  
-  expectedDistancesTrain <- c(euclidDistance(X[1,], X[2,]),
-                              euclidDistance(X[1,], X[2,]) + euclidDistance(X[1,], X[3,]),
-                              euclidDistance(X[1,], X[4,]),
-                              euclidDistance(X[1,], X[4,]) + euclidDistance(X[1,], X[5,]))
-  expect_true(all(expectedDistancesTrain == knnDist$xKnnFeatures[1,]))
+  knnDist <- knnDistFeatures(X[train,], y[train], k = 2)
   
   features <- predict(knnDist, X[-train,])
   
@@ -66,22 +59,4 @@ test_that("knnDistFeatures returns correct values", {
   expect_true(all(expectedDistancesTest == features[1,]))
 })
 
-test_that("knnDistFeatures returns correct number of features and rows when appendTrainFeatures is TRUE", {
-  
-  data(iris)
-  
-  n <- nrow(iris)
-  X <- iris[,1:4]
-  y <- iris[,5]
-  
-  train <- sample(n, n/2)
-  nClasses <- nlevels(y)
-  k <- sample(2:10, 1)
-  
-  knnDist <- knnDistFeatures(X[train,], y[train], k = k, verbose = FALSE)
-  
-  features <- predict(knnDist, X[-train,], appendTrainFeatures = TRUE)
-  expect_true(ncol(features) == (k * nClasses))
-  expect_true(nrow(features) == n)
-})
 
