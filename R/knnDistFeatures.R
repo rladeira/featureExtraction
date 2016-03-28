@@ -1,7 +1,7 @@
 
 knnDistFeatures <- function(x, ...) UseMethod("knnDistFeatures")
 
-knnDistFeatures.default <- function(x, y, k = 10) 
+knnDistFeatures.default <- function(x, y, kValues = 1:10) 
 {
   if(is.factor(y) == FALSE)
     stop("y argument must be a factor.")
@@ -18,7 +18,7 @@ knnDistFeatures.default <- function(x, y, k = 10)
          y = y,
          classes = classes,
          classIdxs = classIdxs,
-         k = k,
+         kValues = kValues,
          call = match.call()),
     class = "knnDistFeatures"
   )
@@ -27,10 +27,11 @@ knnDistFeatures.default <- function(x, y, k = 10)
 predict.knnDistFeatures <- function(knnDistObj, newData) 
 {
   x <- knnDistObj$x
-  k <- knnDistObj$k
+  kValues <- knnDistObj$kValues
+  maxK <- max(kValues)
   classIdxs <- knnDistObj$classIdxs
   
-  newDataDistanceSums <- lapply(
+  newDataMeanDistances <- lapply(
     classIdxs,
     function (info)
     {
@@ -38,32 +39,33 @@ predict.knnDistFeatures <- function(knnDistObj, newData)
       classIdx <- info$idxs
       distances <- FNN::knnx.dist(
         data = x[classIdx,],
-        query = newData, k = k, 
+        query = newData, k = maxK, 
         algorithm = "kd_tree")
       
-      distanceSums <- Reduce(
-        cbind, lapply(1:k, function (i)
+      meanDistances <- as.matrix(Reduce(
+        cbind, lapply(kValues, function (i)
         {
-          apply(distances, 1, function (row) sum(row[1:i]))
-        }))
-      distanceSums <- configureColNamesFor(distanceSums, class)
+          apply(distances, 1, function (row) sum(row[1:i])/i)
+        })))
+      meanDistances <- configureColNamesFor(meanDistances, kValues, class)
       
-      distanceSums
+      meanDistances
     })
   
-  newDataFeatures <- Reduce(cbind, newDataDistanceSums)
+  newDataFeatures <- Reduce(cbind, newDataMeanDistances)
   
   newDataFeatures
 }
 
-configureColNamesFor <- function(distanceSums, class)
+configureColNamesFor <- function(meanDistances, kValues, class)
 {
-  k <- length(colnames(distanceSums))
-  colnames(distanceSums)[1] <- sprintf("nnDistance_class_%s_k_%d", class, 1)
-  colnames(distanceSums)[2:k] <- sapply(
-    2:k, function (i) sprintf("nnDistanceSum_class_%s_k_%d", class, i))
-  
-  distanceSums
+  i <- 1
+  for(k in kValues)
+  {
+    colnames(meanDistances)[i] <- sprintf("nnMeanDistance_class_%s_k_%d", class, k)
+    i <- i + 1
+  }
+  meanDistances
 }
 
 

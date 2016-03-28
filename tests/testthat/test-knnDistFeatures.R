@@ -11,7 +11,7 @@ test_that("knnDistFeatures doesn't return NULL", {
   
   train <- sample(n, n/2)
   
-  knnDist <- knnDistFeatures(X[train,], y[train])
+  knnDist <- knnDistFeatures(X[train,], y[train], kValues = 10)
   expect_false(is.null(knnDist))
   
   features <- predict(knnDist, X[-train,])
@@ -28,12 +28,12 @@ test_that("knnDistFeatures returns correct number of features", {
   
   train <- sample(n, n/2)
   nClasses <- nlevels(y)
-  k <- sample(2:10, 1)
+  kValues <- sample(5:10, 4)
   
-  knnDist <- knnDistFeatures(X[train,], y[train], k)
+  knnDist <- knnDistFeatures(X[train,], y[train], kValues)
   
   features <- predict(knnDist, X[-train,])
-  expect_true(ncol(features) == (k * nClasses))
+  expect_true(ncol(features) == (length(kValues) * nClasses))
 })
 
 test_that("knnDistFeatures returns correct values", {
@@ -48,14 +48,14 @@ test_that("knnDistFeatures returns correct values", {
   
   euclidDistance <- function(x1, x2) sqrt(sum((x1 - x2)^2))
   
-  knnDist <- knnDistFeatures(X[train,], y[train], k = 2)
+  knnDist <- knnDistFeatures(X[train,], y[train], k = 1:2)
   
   features <- predict(knnDist, X[-train,])
   
   expectedDistancesTest <- c(euclidDistance(X[7,], X[3,]),
-                             euclidDistance(X[7,], X[3,]) + euclidDistance(X[7,], X[2,]),
+                             (euclidDistance(X[7,], X[3,]) + euclidDistance(X[7,], X[2,]))/2,
                              euclidDistance(X[7,], X[6,]),
-                             euclidDistance(X[7,], X[6,]) + euclidDistance(X[7,], X[5,]))
+                             (euclidDistance(X[7,], X[6,]) + euclidDistance(X[7,], X[5,]))/2)
   expect_true(all(expectedDistancesTest == features[1,]))
 })
 
