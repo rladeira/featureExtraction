@@ -1,5 +1,5 @@
 
-occurrenceEncoding <- function(data, features)
+occurrenceEncoding <- function(data, features, verbose = TRUE)
 {
   if (is.data.frame(data) == FALSE)
   {
@@ -7,6 +7,15 @@ occurrenceEncoding <- function(data, features)
   }
   
   library(hash)
+  
+  if (verbose)
+  {
+    library(plyr)
+    
+    cat("Extracting features by occurrence encoding...\n")
+    progressBar <- create_progress_bar("text")
+    progressBar$init(length(features))
+  }
   
   for (feature in features)
   {
@@ -19,7 +28,10 @@ occurrenceEncoding <- function(data, features)
     {
       data[[feature]][data[[feature]] == key] <- map[[key]]
     }
+    
+    if (verbose) progressBar$step()
   }
+  if (verbose) cat("\n")
   
   data
 }
