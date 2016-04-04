@@ -1,8 +1,7 @@
 
 occurrence.encoding <- function(data, features, verbose = TRUE)
 {
-  if (is.data.frame(data) == FALSE)
-  {
+  if (is.data.frame(data) == FALSE) {
     data <- as.data.frame(data)
   }
   
@@ -17,16 +16,16 @@ occurrence.encoding <- function(data, features, verbose = TRUE)
     progress.bar$init(length(features))
   }
   
-  for (feature in features)
+  feature.idxs <- which(colnames(data) %in% features)
+  for (i in feature.idxs)
   {
-    data[[feature]] <- as.numeric(data[[feature]])
-    occurrence.table <- table(data[[feature]])
+    data[[i]] <- as.numeric(data[[i]])
+    occurrence.table <- table(data[[i]])
     map <- hash(keys = names(occurrence.table),
                 values = as.numeric(occurrence.table))
     
-    for (key in names(occurrence.table))
-    {
-      data[[feature]][data[[feature]] == key] <- map[[key]]
+    for (key in names(occurrence.table)) {
+      data[[i]][data[[i]] == key] <- map[[key]]
     }
     if (verbose) {
       progress.bar$step()
