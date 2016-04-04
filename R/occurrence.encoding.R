@@ -28,10 +28,13 @@ occurrence.encoding <- function(data, features, verbose = TRUE)
     {
       data[[feature]][data[[feature]] == key] <- map[[key]]
     }
-    
-    if (verbose) progress.bar$step()
+    if (verbose) {
+      progress.bar$step()
+    }
   }
-  if (verbose) cat("\n")
+  if (verbose) {
+    cat("\n")
+  }
   
   data
 }
